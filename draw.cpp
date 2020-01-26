@@ -14,12 +14,9 @@ void init()
 	glOrtho(0, 500.0, 0, 500.0, 0, 500.0);
 }
 
-float space = 46;
-float spacing_vertical = 16;
 //selector and then display corresponding to selected chart
 void display()
 {
-
 	glClear(GL_COLOR_BUFFER_BIT);
 	ifstream ifile;
 	string option, filename;
@@ -31,8 +28,21 @@ void display()
 	if(option == "point")
 	{
 		ifile.open("point.txt");
-		DrawPointChart(ifile);
 	}
+	else if(option == "line")
+	{
+		ifile.open("line.txt");
+	}
+	else if(option == "column")
+	{
+		ifile.open("column.txt");
+	}
+	else if(option == "area")
+	{
+		ifile.open("area.txt");
+	}
+
+	DrawChart(ifile);
 	glFlush();
 }
 
@@ -50,7 +60,7 @@ void Draw(int argc, char *argv[])
 }
 
 //actual drawing type of charts
-void DrawPointChart(ifstream& ifile)
+void DrawChart(ifstream& ifile)
 {
 	string data;
 	while(ifile >> data)
@@ -73,8 +83,15 @@ void DrawPointChart(ifstream& ifile)
 			ifile >> size >> x >> y;
 			SetPoint(stoi(size), stof(x), stof(y));
 		}
+		else if(data == "draw_polygon")
+		{
+			string n;
+			ifile >> n;
+			SetArea(stoi(n), ifile);
+		}
 	}
 }
+
 //utility functions for drawing
 void SetColor(float red, float green, float blue)
 {
@@ -95,6 +112,19 @@ void SetPoint(int size, float x, float y)
 	glPointSize(size);
 	glBegin(GL_POINTS);
 	glVertex3f(x, y, 0);
+	glEnd();
+}
+
+void SetArea(int n, ifstream& ifile)
+{
+	glBegin(GL_POLYGON);
+	while (n > 0)
+	{
+		string x, y;
+		ifile >> x >> y;
+		glVertex3f(stof(x), stof(y), 0);
+		n--;
+	}
 	glEnd();
 }
 
